@@ -17,12 +17,13 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+//@Column(nullable = false), @Column(unique = true), @Column(length = 500)
+//@Column(nullable = false, unique = true, length = 100)
 public class Event {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private int id;
-    //@Column(nullable = false), @Column(unique = true), @Column(length = 500)
-    //@Column(nullable = false, unique = true, length = 100)
+    private Long id;
+
     private String title;
     private String description;
     private LocalDateTime startDateTime;
@@ -30,14 +31,16 @@ public class Event {
     private double price;
     private int totalSeats;
     private int availableSeats;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private EventStatus status;
 
 
     @ManyToOne
     @JoinColumn(name = "venue_id", nullable = false)
     private Venue venue;
 
-    @ManyToMany(mappedBy="category_id")
+    @ManyToMany(mappedBy="events")
     private Set<Category> categories;
 
     @OneToMany(mappedBy="event")
@@ -47,7 +50,6 @@ public class Event {
     @JoinColumn(name="user_id")
     private User user;
 
-
-
-
+    @OneToMany(mappedBy="event")
+    private List<Review> reviews;
 }

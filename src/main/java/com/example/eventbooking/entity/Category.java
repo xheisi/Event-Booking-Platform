@@ -1,21 +1,29 @@
 package com.example.eventbooking.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Set;
 
 @Entity
 @Table(name="category")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Category {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    public int id;
+    private Long id;
 
-    public String name;
+    private String name;
 
     @ManyToMany
     @JoinTable(
-            name="event_id",
+            name="event_category",
             joinColumns=@JoinColumn(name="category_id"),
             inverseJoinColumns=@JoinColumn(name="event_id")
     )

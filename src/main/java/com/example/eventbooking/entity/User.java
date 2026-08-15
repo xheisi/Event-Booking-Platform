@@ -1,11 +1,7 @@
 package com.example.eventbooking.entity;
 
 import jakarta.persistence.*;
-import jdk.jshell.Snippet;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -23,7 +19,6 @@ public class User {
     private String username;
     private String password;
     private String email;
-    private String firstName;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
@@ -33,4 +28,7 @@ public class User {
 
     @OneToMany(mappedBy="user")
     private List<Booking> bookings;
+
+    @OneToMany(mappedBy="user")
+    private List<Review> reviews;
 }

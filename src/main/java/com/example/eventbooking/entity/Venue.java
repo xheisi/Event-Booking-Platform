@@ -16,15 +16,15 @@ import java.util.List;
 public class Venue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public int id;
+    private Long id;
 
-    public String name;
-    public String address;
-    public String city;
-    public String capacity;
+    private String name;
+    private String address;
+    private String city;
+    private int capacity;
 
 
-    @OneToMany(mappedBy = "event")
+    @OneToMany(mappedBy = "venue")
     private List<Event> events;
 
 }
