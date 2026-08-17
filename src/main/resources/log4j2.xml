@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd:mm:ss} %-5level %-30logger{1} - %msg%n</Property>
+        <Property name="LOG_FILE">logs/eventbooking.log</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name = "ConsoleAppender" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+
+        <File name="FileAppender" fileName="${LOG_FILE}" append="true">
+            <PatternLayout pattern = "${LOG_PATTERN}"/>
+        </File>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.example.eventbooking" level="TRACE" additivity="false">
+            <AppenderRef ref = "ConsoleAppender"/>
+            <AppenderRef ref = "FileAppender"/>
+        </Logger>
+
+        <Root level="INFO">
+            <AppenderRef ref = "ConsoleAppender"/>
+            <AppenderRef ref = "FileAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>
