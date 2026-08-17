@@ -11,18 +11,14 @@ import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    // Derived — attendee's own bookings, optionally filtered by status
     List<Booking> findByUserId(Long userId);
     List<Booking> findByUserIdAndStatus(Long userId, BookingStatus status);
 
-    // Derived — oldest waitlisted booking for an event (for promotion on cancellation)
     Optional<Booking> findFirstByEventIdAndStatusOrderByBookingDateAsc(Long eventId, BookingStatus status);
 
-    // JPQL — bookings across all events owned by a given organizer
     @Query("SELECT b FROM Booking b WHERE b.event.user.id = :organizerId")
     List<Booking> findByEventOrganizerId(@Param("organizerId") Long organizerId);
 
-    // Native — reporting-style aggregate: top 5 most-booked events
     @Query(value = """
         SELECT e.id, e.title, SUM(b.seats_booked) AS total_booked
         FROM booking b

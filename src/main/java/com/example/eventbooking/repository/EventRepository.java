@@ -13,13 +13,10 @@ import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
 
-    // Derived query — an organizer's own events (for their management dashboard)
     List<Event> findByUserId(Long userId);
 
-    // Derived query — events with a given status (e.g. all PUBLISHED for public browsing)
     List<Event> findByStatus(EventStatus status);
 
-    // JPQL — flexible search: category, city, date range, price range, all optional, paginated + sortable
     @Query("""
         SELECT DISTINCT e FROM Event e
         LEFT JOIN e.categories c
