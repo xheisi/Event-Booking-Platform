@@ -22,6 +22,8 @@ public class Venue {
     private String address;
     private String city;
     private int capacity;
+    @Column(nullable = false)
+    private boolean active = true;
 
 
     @OneToMany(mappedBy = "venue")

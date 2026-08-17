@@ -20,4 +20,5 @@ public class VenueDTO {
     private String city;
     @Min(1)
     private int capacity;
+    private boolean active;
 }
