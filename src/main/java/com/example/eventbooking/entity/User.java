@@ -21,7 +21,6 @@ public class User {
     private String email;
     @Column(nullable = false)
     private boolean active = true;
-
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
