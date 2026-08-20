@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -26,6 +27,13 @@ public class GlobalExceptionHandler {
                 .message(message)
                 .path(request.getRequestURI())
                 .build();
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException ex, HttpServletRequest request) {
+        log.warn("No endpoint matched — {}", request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(build(HttpStatus.NOT_FOUND, "No endpoint found for this URL", request));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
