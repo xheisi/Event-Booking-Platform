@@ -1,6 +1,7 @@
 package com.example.eventbooking.service;
 
-import com.example.eventbooking.dto.VenueDTO;
+import com.example.eventbooking.dto.request.CreateVenueRequest;
+import com.example.eventbooking.dto.response.VenueResponse;
 import com.example.eventbooking.entity.Venue;
 import com.example.eventbooking.exception.ResourceNotFoundException;
 import com.example.eventbooking.repository.VenueRepository;
@@ -18,8 +19,8 @@ public class VenueService {
     private static final Logger log = LogManager.getLogger(VenueService.class);
     private final VenueRepository venueRepository;
 
-    private VenueDTO toDTO(Venue venue) {
-        return VenueDTO.builder()
+    private VenueResponse toDTO(Venue venue) {
+        return VenueResponse.builder()
                 .id(venue.getId())
                 .name(venue.getName())
                 .address(venue.getAddress())
@@ -38,40 +39,38 @@ public class VenueService {
                 });
     }
 
-    public List<VenueDTO> getAllVenues() {
-        return venueRepository.findAll().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public List<VenueResponse> getAllVenues() {
+        return venueRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public VenueDTO getVenueById(Long id) {
+    public VenueResponse getVenueById(Long id) {
         return toDTO(findVenueOrThrow(id));
     }
 
-    public VenueDTO createVenue(VenueDTO venueDTO) {
-        log.trace("Entering createVenue() — name={}", venueDTO.getName());
-        log.debug("Creating venue with data: {}", venueDTO);
+    public VenueResponse createVenue(CreateVenueRequest request) {
+        log.trace("Entering createVenue() — name={}", request.getName());
+        log.debug("Creating venue with data: {}", request);
 
         Venue venue = new Venue();
-        venue.setName(venueDTO.getName());
-        venue.setAddress(venueDTO.getAddress());
-        venue.setCity(venueDTO.getCity());
-        venue.setCapacity(venueDTO.getCapacity());
+        venue.setName(request.getName());
+        venue.setAddress(request.getAddress());
+        venue.setCity(request.getCity());
+        venue.setCapacity(request.getCapacity());
         Venue saved = venueRepository.save(venue);
 
         log.info("Venue created successfully — id={}, name='{}'", saved.getId(), saved.getName());
         return toDTO(saved);
     }
 
-    public VenueDTO updateVenue(Long id, VenueDTO venueDTO) {
+    public VenueResponse updateVenue(Long id, CreateVenueRequest request) {
         log.trace("Entering updateVenue() — id={}", id);
         Venue existing = findVenueOrThrow(id);
 
-        log.debug("Updating venue id={} with data: {}", id, venueDTO);
-        existing.setName(venueDTO.getName());
-        existing.setAddress(venueDTO.getAddress());
-        existing.setCity(venueDTO.getCity());
-        existing.setCapacity(venueDTO.getCapacity());
+        log.debug("Updating venue id={} with data: {}", id, request);
+        existing.setName(request.getName());
+        existing.setAddress(request.getAddress());
+        existing.setCity(request.getCity());
+        existing.setCapacity(request.getCapacity());
         Venue saved = venueRepository.save(existing);
 
         log.info("Venue updated successfully — id={}", saved.getId());

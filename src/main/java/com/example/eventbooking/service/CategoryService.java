@@ -1,6 +1,7 @@
 package com.example.eventbooking.service;
 
-import com.example.eventbooking.dto.CategoryDTO;
+import com.example.eventbooking.dto.request.CreateCategoryRequest;
+import com.example.eventbooking.dto.response.CategoryResponse;
 import com.example.eventbooking.entity.Category;
 import com.example.eventbooking.exception.ResourceNotFoundException;
 import com.example.eventbooking.repository.CategoryRepository;
@@ -18,8 +19,8 @@ public class CategoryService {
     private static final Logger log = LogManager.getLogger(CategoryService.class);
     private final CategoryRepository categoryRepository;
 
-    private CategoryDTO toDTO(Category category) {
-        return CategoryDTO.builder()
+    private CategoryResponse toDTO(Category category) {
+        return CategoryResponse.builder()
                 .id(category.getId())
                 .name(category.getName())
                 .active(category.isActive())
@@ -35,27 +36,27 @@ public class CategoryService {
                 });
     }
 
-    public List<CategoryDTO> getAllCategories() {
+    public List<CategoryResponse> getAllCategories() {
         return categoryRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public CategoryDTO getCategoryById(Long id) {
+    public CategoryResponse getCategoryById(Long id) {
         return toDTO(findCategoryOrThrow(id));
     }
 
-    public CategoryDTO createCategory(CategoryDTO dto) {
-        log.trace("Entering createCategory() — name={}", dto.getName());
+    public CategoryResponse createCategory(CreateCategoryRequest request) {
+        log.trace("Entering createCategory() — name={}", request.getName());
         Category category = new Category();
-        category.setName(dto.getName());
+        category.setName(request.getName());
         Category saved = categoryRepository.save(category);
         log.info("Category created — id={}, name='{}'", saved.getId(), saved.getName());
         return toDTO(saved);
     }
 
-    public CategoryDTO updateCategory(Long id, CategoryDTO dto) {
+    public CategoryResponse updateCategory(Long id, CreateCategoryRequest request) {
         log.trace("Entering updateCategory() — id={}", id);
         Category existing = findCategoryOrThrow(id);
-        existing.setName(dto.getName());
+        existing.setName(request.getName());
         Category saved = categoryRepository.save(existing);
         log.info("Category updated — id={}", saved.getId());
         return toDTO(saved);

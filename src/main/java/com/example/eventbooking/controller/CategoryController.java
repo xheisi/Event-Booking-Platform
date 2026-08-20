@@ -1,6 +1,7 @@
 package com.example.eventbooking.controller;
 
-import com.example.eventbooking.dto.CategoryDTO;
+import com.example.eventbooking.dto.request.CreateCategoryRequest;
+import com.example.eventbooking.dto.response.CategoryResponse;
 import com.example.eventbooking.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -18,23 +19,23 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
+    public ResponseEntity<List<CategoryResponse>> getAllCategories() {
         return ResponseEntity.ok(categoryService.getAllCategories());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryDTO> getCategoryById(@PathVariable Long id) {
+    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Long id) {
         return ResponseEntity.ok(categoryService.getCategoryById(id));
     }
 
     @PostMapping
-    public ResponseEntity<CategoryDTO> createCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(categoryDTO));
+    public ResponseEntity<CategoryResponse> createCategory(@Valid @RequestBody CreateCategoryRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryDTO> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryDTO categoryDTO) {
-        return ResponseEntity.ok(categoryService.updateCategory(id, categoryDTO));
+    public ResponseEntity<CategoryResponse> updateCategory(@PathVariable Long id, @Valid @RequestBody CreateCategoryRequest request) {
+        return ResponseEntity.ok(categoryService.updateCategory(id, request));
     }
 
     @PatchMapping("/{id}/deactivate")

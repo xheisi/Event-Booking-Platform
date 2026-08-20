@@ -1,6 +1,7 @@
 package com.example.eventbooking.controller;
 
-import com.example.eventbooking.dto.VenueDTO;
+import com.example.eventbooking.dto.request.CreateVenueRequest;
+import com.example.eventbooking.dto.response.VenueResponse;
 import com.example.eventbooking.service.VenueService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -18,23 +19,23 @@ public class VenueController {
     private final VenueService venueService;
 
     @GetMapping
-    public ResponseEntity<List<VenueDTO>> getAllVenues() {
+    public ResponseEntity<List<VenueResponse>> getAllVenues() {
         return ResponseEntity.ok(venueService.getAllVenues());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<VenueDTO> getVenueById(@PathVariable Long id) {
+    public ResponseEntity<VenueResponse> getVenueById(@PathVariable Long id) {
         return ResponseEntity.ok(venueService.getVenueById(id));
     }
 
     @PostMapping
-    public ResponseEntity<VenueDTO> createVenue(@Valid @RequestBody VenueDTO venueDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(venueService.createVenue(venueDTO));
+    public ResponseEntity<VenueResponse> createVenue(@Valid @RequestBody CreateVenueRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(venueService.createVenue(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<VenueDTO> updateVenue(@PathVariable Long id, @Valid @RequestBody VenueDTO venueDTO) {
-        return ResponseEntity.ok(venueService.updateVenue(id, venueDTO));
+    public ResponseEntity<VenueResponse> updateVenue(@PathVariable Long id, @Valid @RequestBody CreateVenueRequest request) {
+        return ResponseEntity.ok(venueService.updateVenue(id, request));
     }
 
     @PatchMapping("/{id}/deactivate")
