@@ -1,7 +1,7 @@
 package com.example.eventbooking.controller;
-
 import com.example.eventbooking.dto.request.CreateEventRequest;
 import com.example.eventbooking.dto.response.EventResponse;
+import com.example.eventbooking.security.AppUserPrincipal;
 import com.example.eventbooking.service.EventService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -38,10 +39,9 @@ public class EventController {
         return ResponseEntity.ok(eventService.getEventDetails(id));
     }
 
-    // TEMP: organizerId param stands in for the authenticated user until JWT security is added
     @GetMapping("/my")
-    public ResponseEntity<List<EventResponse>> getMyEvents(@RequestParam Long organizerId) {
-        return ResponseEntity.ok(eventService.getMyEvents(organizerId));
+    public ResponseEntity<List<EventResponse>> getMyEvents(@AuthenticationPrincipal AppUserPrincipal principal) {
+        return ResponseEntity.ok(eventService.getMyEvents(principal.user().getId()));
     }
 
     @GetMapping("/all")
@@ -49,30 +49,28 @@ public class EventController {
         return ResponseEntity.ok(eventService.getAllEvents());
     }
 
-    // TEMP: organizerId param stands in for the authenticated user until JWT security is added
     @PostMapping
     public ResponseEntity<EventResponse> createEvent(@Valid @RequestBody CreateEventRequest request,
-                                                     @RequestParam Long organizerId) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(eventService.createEvent(request, organizerId));
+                                                     @AuthenticationPrincipal AppUserPrincipal principal) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(eventService.createEvent(request, principal.user().getId()));
     }
 
-    // TEMP: currentUserId param stands in for the authenticated user until JWT security is added
     @PutMapping("/{id}")
     public ResponseEntity<EventResponse> updateEvent(@PathVariable Long id,
                                                      @Valid @RequestBody CreateEventRequest request,
-                                                     @RequestParam Long currentUserId) {
-        return ResponseEntity.ok(eventService.updateEvent(id, request, currentUserId));
+                                                     @AuthenticationPrincipal AppUserPrincipal principal) {
+        return ResponseEntity.ok(eventService.updateEvent(id, request, principal.user().getId()));
     }
 
-    // TEMP: currentUserId param stands in for the authenticated user until JWT security is added
     @PatchMapping("/{id}/publish")
-    public ResponseEntity<EventResponse> publishEvent(@PathVariable Long id, @RequestParam Long currentUserId) {
-        return ResponseEntity.ok(eventService.publishEvent(id, currentUserId));
+    public ResponseEntity<EventResponse> publishEvent(@PathVariable Long id,
+                                                      @AuthenticationPrincipal AppUserPrincipal principal) {
+        return ResponseEntity.ok(eventService.publishEvent(id, principal.user().getId()));
     }
 
-    // TEMP: currentUserId param stands in for the authenticated user until JWT security is added
     @PatchMapping("/{id}/cancel")
-    public ResponseEntity<EventResponse> cancelEvent(@PathVariable Long id, @RequestParam Long currentUserId) {
-        return ResponseEntity.ok(eventService.cancelEvent(id, currentUserId));
+    public ResponseEntity<EventResponse> cancelEvent(@PathVariable Long id,
+                                                     @AuthenticationPrincipal AppUserPrincipal principal) {
+        return ResponseEntity.ok(eventService.cancelEvent(id, principal.user().getId()));
     }
 }
