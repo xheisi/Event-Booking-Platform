@@ -136,10 +136,17 @@ public class EventService {
         }
     }
 
+    private void validateEventTimes(LocalDateTime start, LocalDateTime end) {
+        if (!end.isAfter(start)) {
+            throw new InvalidEventStateException("Event end time must be after start time");
+        }
+    }
+
     public EventResponse createEvent(CreateEventRequest request, Long organizerId) {
         log.trace("Entering createEvent() — title={}, organizerId={}", request.getTitle(), organizerId);
 
         Venue venue = resolveActiveVenue(request.getVenueId());
+        validateEventTimes(request.getStartDateTime(), request.getEndDateTime());
         validateSeatsWithinVenueCapacity(request.getTotalSeats(), venue);
         validateNoVenueOverlap(venue, request.getStartDateTime(), request.getEndDateTime(), null);
         Set<Category> categories = resolveActiveCategories(request.getCategoryIds());
@@ -167,6 +174,7 @@ public class EventService {
         }
 
         Venue venue = resolveActiveVenue(request.getVenueId());
+        validateEventTimes(request.getStartDateTime(), request.getEndDateTime());
         validateSeatsWithinVenueCapacity(request.getTotalSeats(), venue);
         validateNoVenueOverlap(venue, request.getStartDateTime(), request.getEndDateTime(), id);
         Set<Category> categories = resolveActiveCategories(request.getCategoryIds());
