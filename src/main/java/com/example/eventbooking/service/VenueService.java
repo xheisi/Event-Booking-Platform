@@ -3,6 +3,7 @@ package com.example.eventbooking.service;
 import com.example.eventbooking.dto.request.CreateVenueRequest;
 import com.example.eventbooking.dto.response.VenueResponse;
 import com.example.eventbooking.entity.Venue;
+import com.example.eventbooking.exception.DuplicateResourceException;
 import com.example.eventbooking.exception.ResourceNotFoundException;
 import com.example.eventbooking.repository.VenueRepository;
 import lombok.AllArgsConstructor;
@@ -50,6 +51,11 @@ public class VenueService {
     public VenueResponse createVenue(CreateVenueRequest request) {
         log.trace("Entering createVenue() — name={}", request.getName());
         log.debug("Creating venue with data: {}", request);
+
+        if (venueRepository.existsByName(request.getName())) {
+            log.warn("Duplicate venue name rejected — name={}", request.getName());
+            throw new DuplicateResourceException("Venue '" + request.getName() + "' already exists");
+        }
 
         Venue venue = new Venue();
         venue.setName(request.getName());
