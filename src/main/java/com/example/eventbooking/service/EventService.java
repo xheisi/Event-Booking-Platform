@@ -124,12 +124,24 @@ public class EventService {
                     "Total seats (" + totalSeats + ") cannot exceed venue capacity (" + venue.getCapacity() + ")");
         }
     }
+    private void validateNoVenueOverlap(Venue venue, LocalDateTime start, LocalDateTime end, Long excludeEventId) {
+        List<Event> overlapping = eventRepository.findOverlappingEvents(
+                venue.getId(), List.of(EventStatus.DRAFT, EventStatus.PUBLISHED), start, end);
+
+        boolean conflict = overlapping.stream()
+                .anyMatch(e -> excludeEventId == null || !e.getId().equals(excludeEventId));
+
+        if (conflict) {
+            throw new InvalidEventStateException("Venue is already booked for an overlapping time slot");
+        }
+    }
 
     public EventResponse createEvent(CreateEventRequest request, Long organizerId) {
         log.trace("Entering createEvent() — title={}, organizerId={}", request.getTitle(), organizerId);
 
         Venue venue = resolveActiveVenue(request.getVenueId());
         validateSeatsWithinVenueCapacity(request.getTotalSeats(), venue);
+        validateNoVenueOverlap(venue, request.getStartDateTime(), request.getEndDateTime(), null);
         Set<Category> categories = resolveActiveCategories(request.getCategoryIds());
 
         User organizer = new User();
@@ -156,6 +168,7 @@ public class EventService {
 
         Venue venue = resolveActiveVenue(request.getVenueId());
         validateSeatsWithinVenueCapacity(request.getTotalSeats(), venue);
+        validateNoVenueOverlap(venue, request.getStartDateTime(), request.getEndDateTime(), id);
         Set<Category> categories = resolveActiveCategories(request.getCategoryIds());
         applyRequestToEvent(event, request, venue, categories);
 

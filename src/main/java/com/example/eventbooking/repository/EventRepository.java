@@ -37,4 +37,16 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             @Param("maxPrice") Double maxPrice,
             Pageable pageable
     );
+
+    @Query("""
+    SELECT e FROM Event e
+    WHERE e.venue.id = :venueId
+    AND e.status IN :statuses
+    AND e.startDateTime < :endDateTime
+    AND e.endDateTime > :startDateTime
+    """)
+    List<Event> findOverlappingEvents(@Param("venueId") Long venueId,
+                                      @Param("statuses") List<EventStatus> statuses,
+                                      @Param("startDateTime") LocalDateTime startDateTime,
+                                      @Param("endDateTime") LocalDateTime endDateTime);
 }
