@@ -118,10 +118,18 @@ public class EventService {
         return eventRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
+    private void validateSeatsWithinVenueCapacity(int totalSeats, Venue venue) {
+        if (totalSeats > venue.getCapacity()) {
+            throw new InvalidEventStateException(
+                    "Total seats (" + totalSeats + ") cannot exceed venue capacity (" + venue.getCapacity() + ")");
+        }
+    }
+
     public EventResponse createEvent(CreateEventRequest request, Long organizerId) {
         log.trace("Entering createEvent() — title={}, organizerId={}", request.getTitle(), organizerId);
 
         Venue venue = resolveActiveVenue(request.getVenueId());
+        validateSeatsWithinVenueCapacity(request.getTotalSeats(), venue);
         Set<Category> categories = resolveActiveCategories(request.getCategoryIds());
 
         User organizer = new User();
@@ -147,6 +155,7 @@ public class EventService {
         }
 
         Venue venue = resolveActiveVenue(request.getVenueId());
+        validateSeatsWithinVenueCapacity(request.getTotalSeats(), venue);
         Set<Category> categories = resolveActiveCategories(request.getCategoryIds());
         applyRequestToEvent(event, request, venue, categories);
 
