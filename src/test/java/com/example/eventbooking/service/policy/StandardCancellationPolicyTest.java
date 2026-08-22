@@ -3,9 +3,7 @@ package com.example.eventbooking.service.policy;
 import com.example.eventbooking.entity.Booking;
 import com.example.eventbooking.entity.Event;
 import org.junit.jupiter.api.Test;
-
 import java.time.LocalDateTime;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

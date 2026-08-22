@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -17,8 +16,6 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-//@Column(nullable = false), @Column(unique = true), @Column(length = 500)
-//@Column(nullable = false, unique = true, length = 100)
 public class Event {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
