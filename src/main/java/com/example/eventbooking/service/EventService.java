@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -139,6 +140,9 @@ public class EventService {
     private void validateEventTimes(LocalDateTime start, LocalDateTime end) {
         if (!end.isAfter(start)) {
             throw new InvalidEventStateException("Event end time must be after start time");
+        }
+        if (Duration.between(start, end).toMinutes() < 30) {
+            throw new InvalidEventStateException("Event must be at least 30 minutes long");
         }
     }
 
