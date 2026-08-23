@@ -1,6 +1,7 @@
 package com.example.eventbooking.controller;
 
 import com.example.eventbooking.dto.request.CreateBookingRequest;
+import com.example.eventbooking.dto.request.JoinWaitlistRequest;
 import com.example.eventbooking.dto.response.BookingResponse;
 import com.example.eventbooking.entity.BookingStatus;
 import com.example.eventbooking.security.AppUserPrincipal;
@@ -29,8 +30,17 @@ public class BookingController {
 
     @PostMapping("/waitlist")
     public ResponseEntity<BookingResponse> joinWaitlist(@RequestParam Long eventId,
+                                                        @Valid @RequestBody JoinWaitlistRequest request,
                                                         @AuthenticationPrincipal AppUserPrincipal principal) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.joinWaitlist(eventId, principal.user().getId()));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(bookingService.joinWaitlist(eventId, request.getSeatsBooked(), principal.user().getId()));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<BookingResponse> updateSeats(@PathVariable Long id,
+                                                       @RequestParam int seatsBooked,
+                                                       @AuthenticationPrincipal AppUserPrincipal principal) {
+        return ResponseEntity.ok(bookingService.updateSeats(id, seatsBooked, principal.user().getId()));
     }
 
     @GetMapping("/my")

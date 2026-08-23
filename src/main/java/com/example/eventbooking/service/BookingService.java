@@ -1,4 +1,5 @@
 package com.example.eventbooking.service;
+
 import com.example.eventbooking.dto.request.CreateBookingRequest;
 import com.example.eventbooking.dto.response.BookingResponse;
 import com.example.eventbooking.entity.*;
@@ -12,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -110,16 +112,17 @@ public class BookingService {
         return booking;
     }
 
-
-    public BookingResponse joinWaitlist(Long eventId, Long currentUserId) {
-        log.trace("Entering joinWaitlist() — eventId={}, userId={}", eventId, currentUserId);
+    public BookingResponse joinWaitlist(Long eventId, int seatsRequested, Long currentUserId) {
+        log.trace("Entering joinWaitlist() — eventId={}, userId={}, seats={}", eventId, currentUserId, seatsRequested);
 
         Event event = findEventOrThrow(eventId);
         validateWaitlistable(event, currentUserId);
 
-        Booking saved = bookingRepository.save(buildBooking(event, currentUserId, 1, BookingStatus.WAITLISTED));
+        Booking saved = bookingRepository.save(
+                buildBooking(event, currentUserId, seatsRequested, BookingStatus.WAITLISTED));
 
-        log.info("Joined waitlist — bookingId={}, eventId={}, userId={}", saved.getId(), eventId, currentUserId);
+        log.info("Joined waitlist — bookingId={}, eventId={}, userId={}, seats={}",
+                saved.getId(), eventId, currentUserId, seatsRequested);
         return toDTO(saved);
     }
 
@@ -133,6 +136,38 @@ public class BookingService {
         if (hasActiveClaim(currentUserId, event.getId())) {
             throw new DuplicateResourceException("You already have an active booking or waitlist entry for this event");
         }
+    }
+
+
+    public BookingResponse updateSeats(Long bookingId, int newSeatCount, Long currentUserId) {
+        log.trace("Entering updateSeats() — bookingId={}, newSeatCount={}", bookingId, newSeatCount);
+        Booking booking = findBookingOrThrow(bookingId);
+        checkOwnership(booking, currentUserId);
+
+        if (booking.getStatus() != BookingStatus.CONFIRMED) {
+            throw new BookingCancellationException(
+                    "Only confirmed bookings can be modified — this booking is currently " + booking.getStatus());
+        }
+
+        int seatDifference = newSeatCount - booking.getSeatsBooked();
+        Event event = booking.getEvent();
+
+        if (seatDifference > 0 && seatDifference > event.getAvailableSeats()) {
+            throw new SeatsExceededException("Only " + event.getAvailableSeats() + " additional seats available");
+        }
+
+        event.setAvailableSeats(event.getAvailableSeats() - seatDifference);
+        eventRepository.save(event);
+
+        booking.setSeatsBooked(newSeatCount);
+        Booking saved = bookingRepository.save(booking);
+
+        if (seatDifference < 0) {
+            eventPublisher.publishEvent(new BookingCancelledEvent(event.getId()));
+        }
+
+        log.info("Booking seats updated — id={}, newSeatCount={}", saved.getId(), newSeatCount);
+        return toDTO(saved);
     }
 
 
@@ -179,6 +214,7 @@ public class BookingService {
         eventPublisher.publishEvent(new BookingCancelledEvent(event.getId()));
     }
 
+    // ---------- reads ----------
 
     public List<BookingResponse> getMyBookings(Long userId, BookingStatus status) {
         List<Booking> bookings = (status != null)
